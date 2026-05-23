@@ -178,16 +178,29 @@ def checkout():
         flash('Keranjang Anda kosong.', 'danger')
         return redirect(url_for('cart'))
 
-    # Buat pesan WhatsApp
-    message = "Halo, saya ingin memesan produk berikut:\n\n"
+    # Ambil data diri dari form frontend
+    nama = request.form.get('buyer_name')
+    nis = request.form.get('buyer_nis', '-')  # Jika opsional/kosong, beri tanda strip
+    unit = request.form.get('buyer_unit')
+    sekolah = request.form.get('buyer_school')
+
+    # Buat template susunan pesan WhatsApp
+    message = "⚠️ *PESANAN BARU - TAEKWONDO GARUDA CLUB* ⚠️\n\n"
+    message += f"*Data Anggota:*\n"
+    message += f"• Nama: {nama}\n"
+    message += f"• NIS: {nis}\n"
+    message += f"• Unit: {unit}\n"
+    message += f"• Asal Sekolah: {sekolah}\n\n"
+    
+    message += "*Daftar Produk:*\n"
+    
     total_price = 0
     for item in cart:
-        subtotal = item['price'] * item['quantity']
-        # Gunakan fungsi Python yang baru
-        message += f"- {item['name']} ({item['quantity']}x) - Rp{format_rupiah_py(subtotal)}\n"
+        subtotal = int(item['price']) * int(item['quantity'])
+        message += f"- {item['name']} ({item['quantity']}x) -> Rp{format_rupiah_py(subtotal)}\n"
         total_price += subtotal
-    # Gunakan fungsi Python untuk total harga
-    message += f"\nTotal: Rp{format_rupiah_py(total_price)}"
+        
+    message += f"\n*Total Pembayaran: Rp{format_rupiah_py(total_price)}*"
 
     # Encode URL untuk WhatsApp
     whatsapp_number = app.config['WHATSAPP_NUMBER']
